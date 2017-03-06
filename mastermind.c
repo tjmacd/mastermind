@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <regex.h>
+#include <stdlib.h>
 
 #define RED   "\x1B[37;41;1m"
 #define GRN   "\x1B[32;40;1;7m"
@@ -12,15 +14,61 @@
 
 int main()
 {
-  printf(RED " R " RESET "\n");
-  printf(GRN " G " RESET "\n");
-  printf(YEL " Y " RESET "\n");
-  printf(BLU " B " RESET "\n");
-  printf(MAG " M " RESET "\n");
-  printf(CYN " C " RESET "\n");
-  printf(WHT " W " RESET "\n");
-  printf(BLA " K " RESET "\n");
+
+	char str[5];
+
+	printf("Enter a string: ");
+	scanf("%s", str);
+
+	regex_t regex;
+	int reti;
 
 
-  return 0;
+	reti = regcomp(&regex, "[RGYBMCWK]{5}", REG_EXTENDED|REG_NOSUB);
+	
+	if(reti) {
+		fprintf(stderr, "Could not compile regex\n");
+		exit(1);
+	}
+
+	reti = regexec(&regex, str, 0, NULL, 0);
+	printf("%d\n", reti);
+	if(!reti) {
+		puts("GOOD");
+	} else {
+		puts("BAD");
+	}
+
+	for(int i=0; i<5; i++){
+		switch(str[i])
+		{
+			case 'R':
+				printf(RED " R " RESET);
+				break;
+			case 'G':
+				printf(GRN " G " RESET);
+				break;
+			case 'B':
+				printf(BLU " B " RESET);
+				break;
+			case 'M':
+				printf(MAG " M " RESET);
+				break;
+			case 'Y':
+				printf(YEL " Y " RESET);
+				break;
+			case 'C':
+				printf(CYN " C " RESET);
+				break;
+			case 'W':
+				printf(WHT " W " RESET);
+				break;
+			case 'K':
+				printf(BLA " K " RESET);
+				break;
+		}
+	}
+	printf("\n");
+
+  	return 0;
 }
