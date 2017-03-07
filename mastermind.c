@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define RED   "\x1B[37;41;1m"
 #define GRN   "\x1B[32;40;1;7m"
@@ -16,7 +17,35 @@
 #define LENGTH 5
 
 void displaySeq(char *seq) {
-
+	for(int i=0; i<LENGTH; i++){
+		switch(seq[i])
+		{
+		case 'R':
+			printf(RED " R " RESET);
+			break;
+		case 'G':
+			printf(GRN " G " RESET);
+			break;
+		case 'B':
+			printf(BLU " B " RESET);
+			break;
+		case 'M':
+			printf(MAG " M " RESET);
+			break;
+		case 'Y':
+			printf(YEL " Y " RESET);
+			break;
+		case 'C':
+			printf(CYN " C " RESET);
+			break;
+		case 'W':
+			printf(WHT " W " RESET);
+			break;
+		case 'K':
+			printf(BLA " K " RESET);
+			break;
+		}
+	}
 }
 
 int main()
@@ -41,13 +70,14 @@ int main()
 
 	// Generate sequence
 	char seq[LENGTH];
+	srand(time(NULL));
 	for(int i=0; i<LENGTH; i++) {
 		int random = rand() % 8;
 		seq[i] = colours[random];
 	}
 
-	puts(seq);
-
+	//puts(seq);
+	int count = 1;
 	while(1){
 		// Get guess
 		printf("Enter your guess: ");
@@ -59,35 +89,7 @@ int main()
 				guess[i] = toupper(guess[i]);
 			}
 			// Display guess
-			for(int i=0; i<LENGTH; i++){
-				switch(guess[i])
-				{
-				case 'R':
-					printf(RED " R " RESET);
-					break;
-				case 'G':
-					printf(GRN " G " RESET);
-					break;
-				case 'B':
-					printf(BLU " B " RESET);
-					break;
-				case 'M':
-					printf(MAG " M " RESET);
-					break;
-				case 'Y':
-					printf(YEL " Y " RESET);
-					break;
-				case 'C':
-					printf(CYN " C " RESET);
-					break;
-				case 'W':
-					printf(WHT " W " RESET);
-					break;
-				case 'K':
-					printf(BLA " K " RESET);
-					break;
-				}
-			}
+			displaySeq(guess);
 
 			// Mark guess
 			bool checked[LENGTH] = {false};
@@ -137,11 +139,15 @@ int main()
 
 			printf("\n");
 			if(black == LENGTH){
+				displaySeq(seq);
+				printf("\n");
+				printf("Score: %d\n", count);
 				break;
 			}
 		} else {
 			puts("Invalid input");
 		}
+		count++;
 	}
 
   	return 0;
