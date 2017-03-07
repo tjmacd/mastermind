@@ -2,6 +2,7 @@
 #include <regex.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 #define RED   "\x1B[37;41;1m"
 #define GRN   "\x1B[32;40;1;7m"
@@ -14,11 +15,14 @@
 #define RESET "\x1B[0m"
 #define LENGTH 5
 
+void displaySeq(char *seq) {
+
+}
 
 int main()
 {
 
-	char str[LENGTH];
+	char guess[LENGTH];
 	char colours[8] = "RGYBMCWK";
 	
 
@@ -45,16 +49,18 @@ int main()
 	puts(seq);
 
 	while(1){
+		// Get guess
 		printf("Enter your guess: ");
-		scanf("%s", str);
-
-		reti = regexec(&regex, str, 0, NULL, 0);
+		scanf("%s", guess);
+		// Check input
+		reti = regexec(&regex, guess, 0, NULL, 0);
 		if(!reti) {
 			for(int i=0; i<LENGTH; i++) {
-				str[i] = toupper(str[i]);
+				guess[i] = toupper(guess[i]);
 			}
+			// Display guess
 			for(int i=0; i<LENGTH; i++){
-				switch(str[i])
+				switch(guess[i])
 				{
 				case 'R':
 					printf(RED " R " RESET);
@@ -82,7 +88,57 @@ int main()
 					break;
 				}
 			}
+
+			// Mark guess
+			bool checked[LENGTH] = {false};
+			int black=0;
+			int white=0;
+			for(int i=0; i<LENGTH; i++){
+				if(guess[i] == seq[i]){
+					guess[i] = ' ';
+					checked[i] = true;
+					black++;
+				}
+			}
+
+			/*
+			printf("\n[ ");
+			for(int i=0; i<5; i++){
+				printf("%d ", checked[i]);
+			}
+			printf("]\n");
+			*/
+			for(int i=0; i<LENGTH; i++){
+				if(guess[i] != ' '){
+					for(int j=0; j<LENGTH; j++){
+						if(!checked[j] && guess[i] == seq[j]) {
+							checked[j] = true;
+							white++;
+							break;
+						}
+					}
+				}
+			}
+
+			/*
+			printf("[ ");
+			for(int i=0; i<5; i++){
+				printf("%d ", checked[i]);
+			}
+			printf("]\n");
+			*/
+			printf(" ");
+			for(int i=0; i<black; i++){
+				printf(BLA "k" RESET);
+			}
+			for(int i=0; i<white; i++){
+				printf(WHT "w" RESET);
+			}
+
 			printf("\n");
+			if(black == LENGTH){
+				break;
+			}
 		} else {
 			puts("Invalid input");
 		}
