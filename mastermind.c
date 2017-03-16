@@ -4,47 +4,57 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <time.h>
+#include <ncurses.h>
 
-#define RED   "\x1B[37;41;1m"
-#define GRN   "\x1B[32;40;1;7m"
-#define YEL   "\x1B[33;40;1;7m"
-#define BLU   "\x1B[37;44;1m"
-#define MAG   "\x1B[37;45;1m"
-#define CYN   "\x1B[36;40;1;7m"
-#define WHT   "\x1B[37;40;1;7m"
-#define BLA   "\x1B[37;40;1m"
-#define RESET "\x1B[0m"
 #define LENGTH 5
 
 void displaySeq(char *seq) {
 	for(int i=0; i<LENGTH; i++){
+		attron(A_BOLD);
 		switch(seq[i])
 		{
 		case 'R':
-			printf(RED " R " RESET);
+			attron(COLOR_PAIR(1));
+			printw(" R ");
+			attroff(COLOR_PAIR(1));
 			break;
 		case 'G':
-			printf(GRN " G " RESET);
-			break;
-		case 'B':
-			printf(BLU " B " RESET);
-			break;
-		case 'M':
-			printf(MAG " M " RESET);
+			attron(COLOR_PAIR(2) | A_REVERSE);
+			printw(" G ");
+			attroff(COLOR_PAIR(2));
 			break;
 		case 'Y':
-			printf(YEL " Y " RESET);
+			attron(COLOR_PAIR(3) | A_REVERSE);
+			printw(" Y ");
+			attroff(COLOR_PAIR(3));
+			break;
+		case 'B':
+			attron(COLOR_PAIR(4));
+			printw(" B ");
+			attroff(COLOR_PAIR(4));
+			break;
+		case 'M':
+			attron(COLOR_PAIR(5));
+			printw(" M ");
+			attroff(COLOR_PAIR(5));
 			break;
 		case 'C':
-			printf(CYN " C " RESET);
+			attron(COLOR_PAIR(6) | A_REVERSE);
+			printw(" C ");
+			attroff(COLOR_PAIR(6));
 			break;
 		case 'W':
-			printf(WHT " W " RESET);
+			attron(COLOR_PAIR(7) | A_REVERSE);
+			printw(" W ");
+			attroff(COLOR_PAIR(7));
 			break;
 		case 'K':
-			printf(BLA " K " RESET);
+			attron(COLOR_PAIR(7));
+			printw(" K ");
+			attroff(COLOR_PAIR(7));
 			break;
 		}
+		attroff(A_BOLD | A_REVERSE);
 	}
 }
 
@@ -67,6 +77,17 @@ int main()
 		exit(1);
 	}
 
+	// Init curses
+	initscr();
+	start_color();
+	init_pair(1, COLOR_WHITE, COLOR_RED);
+	init_pair(2, COLOR_GREEN, COLOR_BLACK);
+	init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(4, COLOR_WHITE, COLOR_BLUE);
+	init_pair(5, COLOR_WHITE, COLOR_MAGENTA);
+	init_pair(6, COLOR_CYAN, COLOR_BLACK);
+	init_pair(7, COLOR_WHITE, COLOR_BLACK);
+	keypad(stdscr, TRUE);
 
 	// Generate sequence
 	char seq[LENGTH];
@@ -80,8 +101,9 @@ int main()
 	int count = 1;
 	while(1){
 		// Get guess
-		printf("Enter your guess: ");
-		scanf("%s", guess);
+		printw("Enter your guess: ");
+		refresh();
+		getstr(guess);
 		// Check input
 		reti = regexec(&regex, guess, 0, NULL, 0);
 		if(!reti) {
@@ -103,13 +125,6 @@ int main()
 				}
 			}
 
-			/*
-			printf("\n[ ");
-			for(int i=0; i<5; i++){
-				printf("%d ", checked[i]);
-			}
-			printf("]\n");
-			*/
 			for(int i=0; i<LENGTH; i++){
 				if(guess[i] != ' '){
 					for(int j=0; j<LENGTH; j++){
@@ -122,33 +137,35 @@ int main()
 				}
 			}
 
-			/*
-			printf("[ ");
-			for(int i=0; i<5; i++){
-				printf("%d ", checked[i]);
-			}
-			printf("]\n");
-			*/
-			printf(" ");
+			printw(" ");
+			attron(A_BOLD);
 			for(int i=0; i<black; i++){
-				printf(BLA "k" RESET);
+				attron(COLOR_PAIR(7));
+				printw("k");
+				attroff(COLOR_PAIR(7));
 			}
 			for(int i=0; i<white; i++){
-				printf(WHT "w" RESET);
+				attron(COLOR_PAIR(7) | A_REVERSE);
+				printw("w");
+				attroff(COLOR_PAIR(7) | A_REVERSE);
 			}
+			attroff(A_BOLD);
 
-			printf("\n");
+			printw("\n");
 			if(black == LENGTH){
 				displaySeq(seq);
-				printf("\n");
-				printf("Score: %d\n", count);
+				printw("\n");
+				printw("Score: %d\n", count);
 				break;
 			}
 		} else {
-			puts("Invalid input");
+			printw("Invalid input\n");
 		}
+		refresh();
 		count++;
 	}
+	getch();
+	endwin();
 
   	return 0;
 }
